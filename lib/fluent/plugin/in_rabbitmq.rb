@@ -22,7 +22,8 @@ module Fluent::Plugin
 
     helpers :parser, :compat_parameters
 
-    config_param :tag, :string
+    config_param :tag_prefix, :string, default: "rabbitmq."
+    config_param :tag, :string, default: nil
 
     config_section :parse do
 	    config_set_default :@type, "json"
@@ -71,6 +72,7 @@ module Fluent::Plugin
     config_param :include_delivery_info, :bool, default: false
     config_param :headers_key, :string, default: "headers"
     config_param :delivery_info_key, :string, default: "delivery_info"
+    config_param :manual_ack, :bool, default: false
 
     def initialize
       super
@@ -96,6 +98,7 @@ module Fluent::Plugin
       bunny_options[:recovery_attempts] = @recovery_attempts
       bunny_options[:auth_mechanism] = @auth_mechanism if @auth_mechanism
       bunny_options[:heartbeat] = @heartbeat if @heartbeat
+      bunny_options[:logger] = log
 
       bunny_options[:tls] = @tls
       bunny_options[:tls_cert] = @tls_cert if @tls_cert
@@ -132,10 +135,7 @@ module Fluent::Plugin
         auto_delete: @auto_delete,
         arguments: queue_arguments
       )
-      if @exchange
-        queue.bind(@exchange, routing_key: @routing_key)
-      end
-      queue.subscribe do |delivery_info, properties, payload|
+      queue.subscribe(manual_ack: @manual_ack) do |delivery_info, properties, payload|
         @parser.parse(payload) do |time, record|
           time = if properties[:timestamp]
                     Fluent::EventTime.from_time(properties[:timestamp])
@@ -148,7 +148,15 @@ module Fluent::Plugin
           if @include_delivery_info
             record[@delivery_info_key] = delivery_info
           end
+
+          if @tag == nil
+            @tag = "#{tag_prefix}#{delivery_info.routing_key}"
+          end
+
           router.emit(@tag, time, record)
+          if @manual_ack == false
+            channel.acknowledge(delivery_info.delivery_tag, false)
+          end
         end
       end
     end
