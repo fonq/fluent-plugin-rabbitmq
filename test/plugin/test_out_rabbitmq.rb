@@ -23,7 +23,7 @@ class RabbitMQOutputTest < Test::Unit::TestCase
   end
 
   CONFIG = %[
-    host localhost
+    host host.docker.internal
     port 5672
     user guest
     pass guest
@@ -39,7 +39,7 @@ class RabbitMQOutputTest < Test::Unit::TestCase
 
   def test_configure
     d = create_driver
-    assert_equal "localhost", d.instance.host
+    assert_equal "host.docker.internal", d.instance.host
     assert_equal 5672, d.instance.port
     assert_equal "guest", d.instance.user
     assert_equal "guest", d.instance.pass
