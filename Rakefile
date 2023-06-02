@@ -4,7 +4,7 @@ require "rake/testtask"
 Rake::TestTask.new(:test) do |test|
   test.libs << "test"
   test.pattern = "test/**/test_*.rb"
-  test.verbose = false
+  test.verbose = true
   test.warning = false
 end
 

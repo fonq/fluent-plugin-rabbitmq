@@ -25,12 +25,12 @@ jobs:
 
     - name: Install plugins
       run: gem install mocha fluentd
-      
+
     - name: Run bundle
       run: bundle
 
     - name: Run tests
-      run:  ruby -Ilib test/*
+      run:  rake
 
   build:
     name: Build + Publish
