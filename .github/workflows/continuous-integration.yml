@@ -25,9 +25,8 @@ jobs:
 
     - name: Install plugins
       run: gem install mocha fluentd
-    # disabled for now
-    #- name: Run tests
-    #  run:  ruby -Ilib test/*
+    - name: Run tests
+      run:  ruby -Ilib test/*
 
   build:
     name: Build + Publish
