@@ -154,7 +154,7 @@ module Fluent::Plugin
           end
 
           router.emit(@tag, time, record)
-          if @manual_ack == false
+          if @manual_ack == true
             channel.acknowledge(delivery_info.delivery_tag, false)
           end
         end

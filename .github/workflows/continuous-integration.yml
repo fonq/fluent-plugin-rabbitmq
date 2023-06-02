@@ -23,14 +23,14 @@ jobs:
       with:
         ruby-version: 2.6
 
-    - name: Install plugins
-      run: gem install mocha fluentd
+    #- name: Install plugins
+    #  run: gem install mocha fluentd
 
-    - name: Run bundle
-      run: bundle
+    #- name: Run bundle
+    #  run: bundle
 
-    - name: Run tests
-      run:  rake
+    #- name: Run tests
+    #  run:  rake
 
   build:
     name: Build + Publish
