@@ -135,6 +135,7 @@ module Fluent::Plugin
         auto_delete: @auto_delete,
         arguments: queue_arguments
       )
+
       queue.subscribe(manual_ack: @manual_ack) do |delivery_info, properties, payload|
         @parser.parse(payload) do |time, record|
           time = if properties[:timestamp]
@@ -149,11 +150,14 @@ module Fluent::Plugin
             record[@delivery_info_key] = delivery_info
           end
 
+          tmptag = nil
           if @tag == nil
-            @tag = "#{tag_prefix}#{delivery_info.routing_key}"
+            tmptag = "#{tag_prefix}#{delivery_info.routing_key}"
+          else
+            tmptag = @tag
           end
 
-          router.emit(@tag, time, record)
+          router.emit(tmptag, time, record)
           if @manual_ack == true
             channel.acknowledge(delivery_info.delivery_tag, false)
           end
